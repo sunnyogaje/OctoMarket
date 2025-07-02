@@ -9,9 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "bundleIdentifier": "com.dktsolutions.octomarket",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.dktsolutions.octomarket",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -37,6 +39,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "bd925896-01de-41ee-ab36-8a3c423e35c5"
+      }
+    },
+    "owner": "sunnyogaje"
   }
 }
