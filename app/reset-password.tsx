@@ -1,44 +1,60 @@
 import { ThemedText } from '@/components/ThemedText';
+import { TopAlert } from '@/components/TopAlert';
 import { Colors } from '@/constants/Colors';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+
+const { width } = Dimensions.get('window');
 
 export default function ResetPasswordScreen() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState<{ message: string; type: 'success' | 'error'; visible: boolean }>({ message: '', type: 'success', visible: false });
+  const router = useRouter();
 
   const validateEmail = (email: string) => {
     return /\S+@\S+\.\S+/.test(email);
+  };
+
+  const showAlert = (message: string, type: 'success' | 'error' = 'success', cb?: () => void) => {
+    setAlert({ message, type, visible: true });
+    setTimeout(() => {
+      setAlert((a) => ({ ...a, visible: false }));
+      if (cb) cb();
+    }, 1800);
   };
 
   const handleReset = () => {
     setError('');
     setSuccess(false);
     if (!validateEmail(email)) {
-      setError('Invalid email address.');
+      showAlert('Invalid email address.', 'error');
       return;
     }
     setLoading(true);
     // Simulate API call
     setTimeout(() => {
       setLoading(false);
-      setSuccess(true);
+      showAlert('Reset link sent successfully!', 'success', () => {
+        router.push({ pathname: '/verify-reset-code', params: { email } });
+      });
     }, 1200);
   };
 
   return (
     <View style={styles.container}>
-      {/* Top purple curve */}
-      <View style={styles.topCurve} />
+      <View style={styles.topCard} />
+      <TopAlert message={alert.message} type={alert.type} visible={alert.visible} />
       <View style={styles.content}>
         <ThemedText type="title" style={styles.title}>Reset password</ThemedText>
         <ThemedText style={styles.subtitle}>
           Enter your email and we'll send you a link to reset your password.
         </ThemedText>
         <TextInput
-          style={[styles.input, error ? styles.inputError : null]}
+          style={[styles.input, alert.visible && alert.type === 'error' ? styles.inputError : null]}
           placeholder="Email address"
           placeholderTextColor="#aaa"
           value={email}
@@ -46,10 +62,6 @@ export default function ResetPasswordScreen() {
           autoCapitalize="none"
           keyboardType="email-address"
         />
-        {error ? <ThemedText style={styles.error}>{error}</ThemedText> : null}
-        {success ? (
-          <ThemedText style={styles.success}>Check your email for a reset link.</ThemedText>
-        ) : null}
         <TouchableOpacity
           style={[styles.button, (!email || loading) && styles.buttonDisabled]}
           onPress={handleReset}
@@ -67,22 +79,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  topCurve: {
-    height: 120,
-    backgroundColor: Colors.light.tint,
-    borderBottomLeftRadius: 80,
-    borderBottomRightRadius: 80,
+  topCard: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1,
+    top: -width * 0.8,
+    left: -width * 0.25,
+    width: width * 1.5,
+    height: width * 1.5,
+    backgroundColor: '#4A154B',
+    borderRadius: width * 0.75,
+    zIndex: 0,
   },
   content: {
     flex: 1,
-    marginTop: 100,
+    justifyContent: 'flex-start',
+    alignItems: 'stretch',
+    paddingTop: width * 0.75,
     paddingHorizontal: 24,
-    zIndex: 2,
+    zIndex: 1,
   },
   title: {
     marginBottom: 8,
@@ -124,8 +137,23 @@ const styles = StyleSheet.create({
     color: '#D32F2F',
     marginBottom: 8,
   },
-  success: {
+  topAlert: {
+    position: 'absolute',
+    top: 40,
+    left: 0,
+    right: 0,
+    backgroundColor: '#E6F4EA',
+    borderColor: '#388E3C',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginHorizontal: 24,
+    padding: 12,
+    zIndex: 10,
+    alignItems: 'center',
+  },
+  topAlertText: {
     color: '#388E3C',
-    marginBottom: 8,
+    fontWeight: 'bold',
+    fontSize: 15,
   },
 }); 
