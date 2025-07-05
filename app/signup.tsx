@@ -1,7 +1,8 @@
+import { TopAlert } from '@/components/TopAlert';
 import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Dimensions, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
@@ -27,33 +28,44 @@ export default function SignUpScreen() {
   const [referralFocused, setReferralFocused] = useState(false);
   const [birthdayFocused, setBirthdayFocused] = useState(false);
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [alert, setAlert] = useState<{ message: string; type: 'success' | 'error'; visible: boolean }>({ message: '', type: 'success', visible: false });
+
+  const router = useRouter();
 
   const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
   const isFormValid = fullName && email && password && confirmPassword && validateEmail(email) && password.length >= 6 && password === confirmPassword && birthday;
+
+  const showAlert = (message: string, type: 'success' | 'error' = 'success') => {
+    setAlert({ message, type, visible: true });
+    setTimeout(() => setAlert((a) => ({ ...a, visible: false })), 1800);
+  };
 
   const handleSignUp = () => {
     setSubmitAttempted(true);
     setError('');
     if (!fullName || !email || !password || !confirmPassword || !birthday) {
-      setError('Please fill in all required fields.');
+      showAlert('Please fill in all required fields.', 'error');
       return;
     }
     if (!validateEmail(email)) {
-      setError('Provide a valid email address.');
+      showAlert('Provide a valid email address.', 'error');
       return;
     }
     if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+      showAlert('Password must be at least 6 characters.', 'error');
       return;
     }
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      showAlert('Passwords do not match.', 'error');
       return;
     }
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      // Success: navigate or show next step
+      showAlert('Sign up successful! Please verify your email.', 'success');
+      setTimeout(() => {
+        router.push({ pathname: '/verify-code', params: { email } });
+      }, 1200);
     }, 1200);
   };
 
@@ -80,6 +92,7 @@ export default function SignUpScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.topCard} />
+      <TopAlert message={alert.message} type={alert.type} visible={alert.visible} />
       <ScrollView style={{flex: 1}} contentContainerStyle={{paddingHorizontal: 24, paddingTop: width * 0.75, paddingBottom: 32}} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         {error ? (
           <View style={styles.mainErrorBox}>

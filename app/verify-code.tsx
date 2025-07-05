@@ -1,9 +1,13 @@
 import { ThemedText } from '@/components/ThemedText';
 import { Colors } from '@/constants/Colors';
+import { useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+
+const { width } = Dimensions.get('window');
 
 export default function VerifyCodeScreen() {
+  const { email } = useLocalSearchParams();
   const [code, setCode] = useState(['', '', '', '']);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -51,11 +55,11 @@ export default function VerifyCodeScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.topCurve} />
+      <View style={styles.topCard} />
       <View style={styles.content}>
         <ThemedText type="title" style={styles.title}>Verify your email address</ThemedText>
         <ThemedText style={styles.subtitle}>
-          We sent a 4-digit code to your email address. Enter it below to verify.
+          We sent a 4-digit code to your email address{email ? ` (${email})` : ''}. Enter it below to verify.
         </ThemedText>
         <View style={styles.codeRow}>
           {code.map((digit, idx) => (
@@ -96,22 +100,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  topCurve: {
-    height: 120,
-    backgroundColor: Colors.light.tint,
-    borderBottomLeftRadius: 80,
-    borderBottomRightRadius: 80,
+  topCard: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1,
+    top: -width * 0.8,
+    left: -width * 0.25,
+    width: width * 1.5,
+    height: width * 1.5,
+    backgroundColor: '#4A154B',
+    borderRadius: width * 0.75,
+    zIndex: 0,
   },
   content: {
     flex: 1,
-    marginTop: 100,
+    justifyContent: 'flex-start',
+    alignItems: 'stretch',
+    paddingTop: width * 0.75,
     paddingHorizontal: 24,
-    zIndex: 2,
+    zIndex: 1,
   },
   title: {
     marginBottom: 8,
