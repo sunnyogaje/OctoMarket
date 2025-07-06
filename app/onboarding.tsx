@@ -1,15 +1,9 @@
 import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
-import {
-  Dimensions,
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+import { Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width, height } = Dimensions.get("window");
 
@@ -45,10 +39,15 @@ export default function OnboardingScreen() {
 
   if (!fontsLoaded) return null;
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
     if (currentIndex < slides.length - 1) {
       flatListRef.current?.scrollToIndex({ index: currentIndex + 1 });
     } else {
+      try {
+        await AsyncStorage.setItem("hasLaunched", "true");
+      } catch (error) {
+        console.error("Error setting first launch flag:", error);
+      }
       router.replace("/landing");
     }
   };
