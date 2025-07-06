@@ -8,6 +8,7 @@
     "scheme": "octomarket",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "jsEngine": "hermes",
     "ios": {
       "bundleIdentifier": "com.dktsolutions.octomarket",
       "supportsTablet": true

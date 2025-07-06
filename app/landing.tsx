@@ -1,6 +1,9 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import { Button } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 export default function LandingScreen() {
   const router = useRouter();
@@ -24,7 +27,7 @@ export default function LandingScreen() {
             for real purchases, discounts and offers
           </Text>
         </View>
-
+        
         
         {/* Buttons */}
         <View style={styles.buttonRow}>

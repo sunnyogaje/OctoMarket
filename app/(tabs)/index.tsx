@@ -2,6 +2,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
+import { enableScreens } from 'react-native-screens';
+enableScreens();
+
 
 export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
