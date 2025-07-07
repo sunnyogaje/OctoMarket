@@ -48,6 +48,11 @@
         "projectId": "bd925896-01de-41ee-ab36-8a3c423e35c5"
       }
     },
-    "owner": "sunnyogaje"
+    "owner": "octopoint",
+    "privacy": "public",
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/bd925896-01de-41ee-ab36-8a3c423e35c5"
+    }
   }
 }
