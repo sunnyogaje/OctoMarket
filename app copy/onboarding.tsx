@@ -1,5 +1,6 @@
+import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import {
   Dimensions,
   FlatList,
@@ -10,7 +11,6 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
-import * as SplashScreen from "expo-splash-screen";
 
 import B1 from "../assets/images/onboarding/b1.svg";
 import B2 from "../assets/images/onboarding/b2.svg";
@@ -43,18 +43,16 @@ const slides = [
 ];
 
 export default function OnboardingScreen() {
+  const [fontsLoaded] = useFonts({
+    "Lato-Regular": require("../assets/fonts/Lato-Regular.ttf"),
+    "Lato-Bold": require("../assets/fonts/Lato-Bold.ttf"),
+  });
+
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
 
-  // ✅ Hide splash screen once screen mounts
-  useEffect(() => {
-    const hideSplash = async () => {
-      await SplashScreen.hideAsync();
-    };
-
-    hideSplash();
-  }, []);
+  if (!fontsLoaded) return null;
 
   const handleSkip = async () => {
     router.replace("/landing");
@@ -88,6 +86,7 @@ export default function OnboardingScreen() {
         renderItem={renderItem}
       />
 
+      {/* Fixed Progress + Skip Button */}
       <View style={styles.bottomFixed}>
         <View style={styles.progressContainer}>
           {slides.map((_, i) => (
@@ -99,7 +98,9 @@ export default function OnboardingScreen() {
         </View>
         <View style={styles.buttonWrapper}>
           <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-            <Text style={styles.skipButtonText}>Skip</Text>
+            <Text style={styles.skipButtonText}>
+              Skip
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -134,20 +135,20 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   title: {
+    fontFamily: "Lato-Bold",
     fontSize: 26,
     lineHeight: 34,
     color: "#1A1A1A",
     textAlign: "left",
     marginTop: 10,
-    fontWeight: "700",
   },
   subtitle: {
+    fontFamily: "Lato-Regular",
     fontSize: 16,
     lineHeight: 20,
     color: "#4A4A4A",
     textAlign: "left",
     marginTop: 15,
-    fontWeight: "400",
   },
   progressContainer: {
     flexDirection: "row",
@@ -182,6 +183,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
   },
   skipButtonText: {
+    fontFamily: "Lato-Regular",
     color: "#fff",
     fontSize: 17,
     alignSelf: "center",
