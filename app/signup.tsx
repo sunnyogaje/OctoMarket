@@ -1,16 +1,22 @@
 import { TopAlert } from '@/components/TopAlert';
-import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Link, useRouter } from 'expo-router';
+import { Link, Stack, useRouter } from 'expo-router';
+import moment from 'moment';
 import { useState } from 'react';
-import { Dimensions, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Path } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
 const PURPLE = '#4A154B';
 
 export default function SignUpScreen() {
-  const [fullName, setFullName] = useState('');
+  const [FirstName, setFirstName] = useState('');
+   const [LastName, setLastName] = useState('');
+  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -21,7 +27,10 @@ export default function SignUpScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [fullNameFocused, setFullNameFocused] = useState(false);
+  const [FirstNameFocused, setFirstNameFocused] = useState(false);
+  const [LastNameFocused, setLastNameFocused] = useState(false);
+
+  
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [confirmPasswordFocused, setConfirmPasswordFocused] = useState(false);
@@ -33,7 +42,8 @@ export default function SignUpScreen() {
   const router = useRouter();
 
   const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
-  const isFormValid = fullName && email && password && confirmPassword && validateEmail(email) && password.length >= 6 && password === confirmPassword && birthday;
+  // Button is only disabled if required fields are empty
+  const isButtonDisabled = !FirstName || !LastName  || !email || !password || !confirmPassword || !birthday;
 
   const showAlert = (message: string, type: 'success' | 'error' = 'success') => {
     setAlert({ message, type, visible: true });
@@ -43,22 +53,16 @@ export default function SignUpScreen() {
   const handleSignUp = () => {
     setSubmitAttempted(true);
     setError('');
-    if (!fullName || !email || !password || !confirmPassword || !birthday) {
-      showAlert('Please fill in all required fields.', 'error');
-      return;
-    }
-    if (!validateEmail(email)) {
-      showAlert('Provide a valid email address.', 'error');
-      return;
-    }
-    if (password.length < 6) {
-      showAlert('Password must be at least 6 characters.', 'error');
-      return;
-    }
-    if (password !== confirmPassword) {
-      showAlert('Passwords do not match.', 'error');
-      return;
-    }
+    if (!FirstName) return setError('First name is required.');
+      if (!LastName) return setError('Last name is required.');
+    if (!email) return setError('Email is required.');
+    if (!validateEmail(email)) return setError('Provide a valid email address.');
+    if (!password) return setError('Password is required.');
+    if (password.length < 8) return setError('Password must be at least 8 characters.');
+    if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) return setError('Password must contain at least one letter and one number.');
+    if (!confirmPassword) return setError('Please confirm your password.');
+    if (password !== confirmPassword) return setError('Passwords do not match.');
+    if (!birthday) return setError('Birthday is required.');
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
@@ -77,70 +81,134 @@ export default function SignUpScreen() {
   };
 
   // Debug log to help identify which field is causing the form to be invalid
-  console.log({
-    fullName,
-    email,
-    password,
-    confirmPassword,
-    birthday,
-    isEmailValid: validateEmail(email),
-    passwordsMatch: password === confirmPassword,
-    passwordLengthValid: password.length >= 6,
-    isFormValid
-  });
+  // console.log({
+  //   fullName,
+  //   email,
+  //   password,
+  //   confirmPassword,
+  //   birthday,
+  //   isEmailValid: validateEmail(email),
+  //   passwordsMatch: password === confirmPassword,
+  //   passwordLengthValid: password.length >= 6,
+  //   isFormValid
+  // });
 
   return (
+     <>
+    <Stack.Screen options={{ headerShown: false }} />
+     <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
     <View style={styles.container}>
-      <View style={styles.topCard} />
-      <TopAlert message={alert.message} type={alert.type} visible={alert.visible} />
-      <ScrollView style={{flex: 1}} contentContainerStyle={{paddingHorizontal: 24, paddingTop: width * 0.75, paddingBottom: 32}} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-        {error ? (
-          <View style={styles.mainErrorBox}>
-            <Text style={styles.mainErrorText}>{error}</Text>
-          </View>
-        ) : null}
+      <TopAlert message={error || alert.message} type={error ? 'error' : alert.type} visible={!!error || alert.visible} />
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        enableOnAndroid
+        enableAutomaticScroll
+        extraScrollHeight={Platform.OS === 'ios' ? 40 : 80}
+        showsVerticalScrollIndicator={false}
+        style={{ flex: 1 }}
+      >
+        <Svg
+          width={width * 1.7}
+          height={width * 1.2}
+          viewBox={`0 0 ${width * 1.7} ${width * 1.2}`}
+          style={{
+            alignSelf: 'flex-start',
+            marginTop: 0,
+            marginBottom: -179,
+            marginLeft: -(width * 0.35),
+          }}
+        >
+          <Path
+            d={`M0,0 Q${(width * 1.4) / 2},${width * 1.2} ${width * 1.7},0 L${width * 1.7},0 L0,0 Z`}
+            fill={PURPLE}
+          />
+        </Svg>
+
+         <TouchableOpacity
+                onPress={() => router.back()}
+                style={{ position: 'absolute', top: 100, left: 20, zIndex: 2 }}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+            <Ionicons name="arrow-back" size={19} color="#fff" />
+          </TouchableOpacity>
         <Text style={styles.title}>Let&apos;s show you around</Text>
         <Text style={styles.subtitle}>Enter your personal account details to start enjoying OctoMarket features.</Text>
+
+        {/* Full Name */}
         <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Full Name</Text>
+          <Text style={styles.inputLabel}>First Name</Text>
           <TextInput
             style={[
               styles.input,
-              fullNameFocused && styles.inputFocused,
-              error && !fullName ? styles.inputError : null,
+              {
+                backgroundColor:
+                  error && error.toLowerCase().includes('first name')
+                    ? '#FDECEC'
+                    : FirstName
+                      ? '#EDE8ED'
+                      : '#FFFFFF',
+              },
+              error && error.toLowerCase().includes('full name') ? styles.inputError : null,
             ]}
-            placeholder="Full Name"
+            placeholder="First Name"
             placeholderTextColor="#aaa"
-            value={fullName}
-            onChangeText={setFullName}
-            onFocus={() => setFullNameFocused(true)}
-            onBlur={() => setFullNameFocused(false)}
+            value={FirstName}
+            onChangeText={setFirstName}
+            autoCapitalize="words"
           />
         </View>
+
+
+         <View style={styles.inputGroup}>
+          <Text style={styles.inputLabel}>Last Name</Text>
+          <TextInput
+            style={[
+              styles.input,
+              {
+                backgroundColor:
+                  error && error.toLowerCase().includes('last name')
+                    ? '#FDECEC'
+                    : LastName
+                      ? '#EDE8ED'
+                      : '#FFFFFF',
+              },
+              error && error.toLowerCase().includes('last name') ? styles.inputError : null,
+            ]}
+            placeholder="Last Name"
+            placeholderTextColor="#aaa"
+            value={LastName}
+            onChangeText={setLastName}
+            autoCapitalize="words"
+          />
+        </View>
+
+        {/* Email */}
         <View style={styles.inputGroup}>
           <Text style={styles.inputLabel}>Email Address</Text>
           <TextInput
             style={[
               styles.input,
-              emailFocused && styles.inputFocused,
-              (submitAttempted && (!email || !validateEmail(email))) && styles.inputError,
+              {
+                backgroundColor:
+                  error && (error.toLowerCase().includes('email') || error.toLowerCase().includes('valid email'))
+                    ? '#FDECEC'
+                    : email
+                      ? '#EDE8ED'
+                      : '#FFFFFF',
+              },
+              error && (error.toLowerCase().includes('email') || error.toLowerCase().includes('valid email')) ? styles.inputError : null,
             ]}
-            placeholder="Email Address"
+            placeholder="Provide valid email address"
             placeholderTextColor="#aaa"
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
             keyboardType="email-address"
-            onFocus={() => setEmailFocused(true)}
-            onBlur={() => setEmailFocused(false)}
           />
-          {(submitAttempted && (!email || !validateEmail(email))) && (
-            <View style={styles.errorRow}>
-              <Ionicons name="alert-circle-outline" size={18} color="#D32F2F" style={{ marginRight: 4 }} />
-              <Text style={styles.errorText}>Invalid email</Text>
-            </View>
-          )}
         </View>
+
+        {/* Password */}
         <View style={styles.inputGroup}>
           <Text style={styles.inputLabel}>Password</Text>
           <View style={styles.inputPasswordWrapper}>
@@ -148,26 +216,33 @@ export default function SignUpScreen() {
               style={[
                 styles.input,
                 styles.passwordInput,
-                passwordFocused && styles.inputFocused,
-                error && password ? styles.inputError : null,
+                {
+                  backgroundColor:
+                    error && (error.toLowerCase().includes('password') && !error.toLowerCase().includes('confirm'))
+                      ? '#FDECEC'
+                      : password
+                        ? '#EDE8ED'
+                        : '#FFFFFF',
+                },
+                error && (error.toLowerCase().includes('password') && !error.toLowerCase().includes('confirm')) ? styles.inputError : null,
               ]}
               placeholder="Password"
               placeholderTextColor="#aaa"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
-              onFocus={() => setPasswordFocused(true)}
-              onBlur={() => setPasswordFocused(false)}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.showHideBtn}>
               <Ionicons
                 name={showPassword ? 'eye' : 'eye-off'}
-                size={22}
-                color={Colors.light.tint}
+                size={18}
+                color={'#6B7280'}
               />
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Confirm Password */}
         <View style={styles.inputGroup}>
           <Text style={styles.inputLabel}>Confirm Password</Text>
           <View style={styles.inputPasswordWrapper}>
@@ -175,57 +250,54 @@ export default function SignUpScreen() {
               style={[
                 styles.input,
                 styles.passwordInput,
-                confirmPasswordFocused && styles.inputFocused,
-                error && confirmPassword ? styles.inputError : null,
+                {
+                  backgroundColor:
+                    error && error.toLowerCase().includes('confirm')
+                      ? '#FDECEC'
+                      : confirmPassword
+                        ? '#EDE8ED'
+                        : '#FFFFFF',
+                },
+                error && error.toLowerCase().includes('confirm') ? styles.inputError : null,
               ]}
               placeholder="Confirm Password"
               placeholderTextColor="#aaa"
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry={!showConfirmPassword}
-              onFocus={() => setConfirmPasswordFocused(true)}
-              onBlur={() => setConfirmPasswordFocused(false)}
             />
             <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={styles.showHideBtn}>
               <Ionicons
                 name={showConfirmPassword ? 'eye' : 'eye-off'}
-                size={22}
-                color={Colors.light.tint}
+                size={18}
+                color={'#6B7280'}
               />
             </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Referral Code (Optional)</Text>
-          <TextInput
-            style={[
-              styles.input,
-              referralFocused && styles.inputFocused,
-            ]}
-            placeholder="Referral Code (Optional)"
-            placeholderTextColor="#aaa"
-            value={referralCode}
-            onChangeText={setReferralCode}
-            onFocus={() => setReferralFocused(true)}
-            onBlur={() => setReferralFocused(false)}
-          />
-        </View>
+
+        {/* Birthday */}
         <View style={styles.inputGroup}>
           <Text style={styles.inputLabel}>Birthday</Text>
           <TouchableOpacity onPress={() => setShowDatePicker(true)}>
             <TextInput
               style={[
                 styles.input,
-                birthdayFocused && styles.inputFocused,
-                error && !birthday ? styles.inputError : null,
+                {
+                  backgroundColor:
+                    error && error.toLowerCase().includes('birthday')
+                      ? '#FDECEC'
+                      : birthday
+                        ? '#EDE8ED'
+                        : '#FFFFFF',
+                },
+                error && error.toLowerCase().includes('birthday') ? styles.inputError : null,
               ]}
-              placeholder="YYYY-MM-DD"
+              placeholder="DD/MM"
               placeholderTextColor="#aaa"
-              value={birthday}
+              value={birthday ? moment(birthday).format('DD/MM') : ''}
               editable={false}
               pointerEvents="none"
-              onFocus={() => setBirthdayFocused(true)}
-              onBlur={() => setBirthdayFocused(false)}
             />
           </TouchableOpacity>
           {showDatePicker && (
@@ -234,16 +306,33 @@ export default function SignUpScreen() {
               mode="date"
               display="default"
               onChange={onChangeDate}
-              maximumDate={new Date()}
             />
           )}
         </View>
+
+        {/* Referral Code (Optional) */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.inputLabel}>Referral Code (Optional)</Text>
+          <TextInput
+            style={[
+              styles.input,
+              {
+                backgroundColor: referralCode ? '#EDE8ED' : '#FFFFFF',
+              },
+            ]}
+            placeholder="Referral Code (Optional)"
+            placeholderTextColor="#aaa"
+            value={referralCode}
+            onChangeText={setReferralCode}
+          />
+        </View>
+
         <TouchableOpacity
-          style={[styles.button, (!isFormValid || loading) ? styles.buttonDisabled : styles.buttonEnabled]}
+          style={[styles.button, (isButtonDisabled || loading) ? styles.buttonDisabled : styles.buttonEnabled]}
           onPress={handleSignUp}
-          disabled={!isFormValid || loading}
+          disabled={isButtonDisabled || loading}
         >
-          <Text style={styles.buttonText}>Continue</Text>
+          <Text style={styles.buttonText}>Sign up</Text>
         </TouchableOpacity>
         <View style={styles.switchContainer}>
           <Text style={styles.switchText}>Already have an account? </Text>
@@ -253,8 +342,10 @@ export default function SignUpScreen() {
             </TouchableOpacity>
           </Link>
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </View>
+   </SafeAreaView>
+    </>
   );
 }
 
@@ -262,37 +353,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-  },
-  topCard: {
-    position: 'absolute',
-    top: -width * 0.8,
-    left: -width * 0.25,
-    width: width * 1.5,
-    height: width * 1.5,
-    backgroundColor: '#4A154B',
-    borderRadius: width * 0.75,
-    zIndex: 1,
+    position: 'relative',
   },
   content: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'flex-start',
-    alignItems: 'stretch',
-    paddingTop: width * 0.75,
     paddingHorizontal: 24,
-    zIndex: 1,
+    paddingBottom: Math.max(40, Math.round(Dimensions.get('window').height * 0.07)), // Responsive bottom padding
   },
   title: {
     marginTop: 21,
     marginBottom: 8,
-    color: '#222',
-    fontSize: 22,
+    color: '#000000',
+    fontSize: 24,
     fontWeight: '700',
     textAlign: 'left',
   },
   subtitle: {
     marginBottom: 28,
-    color: '#444',
-    fontSize: 15,
+    color: '#000000',
+    fontSize: 14,
     fontWeight: '400',
     textAlign: 'left',
   },
@@ -348,15 +428,15 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   buttonEnabled: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: '#4A154B',
   },
   buttonDisabled: {
-    backgroundColor: '#C4C4C4',
+    backgroundColor: '#B4B4B4',
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
+    color: '#FFFFFF',
+    fontWeight: 600,
+    fontSize: 14,
   },
   error: {
     color: '#D32F2F',
@@ -367,16 +447,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 6,
   },
   switchText: {
-    color: '#222',
-    fontSize: 15,
+    color: '#111827',
+    fontSize: 14,
+    fontWeight: '400',
   },
   linkText: {
-    color: Colors.light.tint,
-    fontWeight: '500',
-    fontSize: 15,
+    color: '#6366F1',
+    fontWeight: '400',
+    fontSize: 14,
   },
   errorRow: {
     flexDirection: 'row',
@@ -387,17 +468,5 @@ const styles = StyleSheet.create({
   errorText: {
     color: '#D32F2F',
     fontSize: 14,
-  },
-  mainErrorBox: {
-    borderWidth: 1,
-    borderColor: '#D32F2F',
-    backgroundColor: '#FFF0F0',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 16,
-  },
-  mainErrorText: {
-    color: '#D32F2F',
-    fontSize: 16,
   },
 }); 

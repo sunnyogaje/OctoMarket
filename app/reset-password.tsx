@@ -1,25 +1,41 @@
-import { ThemedText } from '@/components/ThemedText';
 import { TopAlert } from '@/components/TopAlert';
-import { Colors } from '@/constants/Colors';
-import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Dimensions, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Path } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
 
 export default function ResetPasswordScreen() {
   const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [alert, setAlert] = useState<{ message: string; type: 'success' | 'error'; visible: boolean }>({ message: '', type: 'success', visible: false });
+  const [alert, setAlert] = useState<{
+    message: string;
+    type: 'success' | 'error';
+    visible: boolean;
+  }>({ message: '', type: 'success', visible: false });
+
   const router = useRouter();
 
   const validateEmail = (email: string) => {
     return /\S+@\S+\.\S+/.test(email);
   };
 
-  const showAlert = (message: string, type: 'success' | 'error' = 'success', cb?: () => void) => {
+  const showAlert = (
+    message: string,
+    type: 'success' | 'error' = 'success',
+    cb?: () => void
+  ) => {
     setAlert({ message, type, visible: true });
     setTimeout(() => {
       setAlert((a) => ({ ...a, visible: false }));
@@ -28,14 +44,13 @@ export default function ResetPasswordScreen() {
   };
 
   const handleReset = () => {
-    setError('');
-    setSuccess(false);
     if (!validateEmail(email)) {
       showAlert('Invalid email address.', 'error');
       return;
     }
+
     setLoading(true);
-    // Simulate API call
+
     setTimeout(() => {
       setLoading(false);
       showAlert('Reset link sent successfully!', 'success', () => {
@@ -45,32 +60,93 @@ export default function ResetPasswordScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.topCard} />
-      <TopAlert message={alert.message} type={alert.type} visible={alert.visible} />
-      <View style={styles.content}>
-        <ThemedText type="title" style={styles.title}>Reset password</ThemedText>
-        <ThemedText style={styles.subtitle}>
-          Enter your email and we'll send you a link to reset your password.
-        </ThemedText>
-        <TextInput
-          style={[styles.input, alert.visible && alert.type === 'error' ? styles.inputError : null]}
-          placeholder="Email address"
-          placeholderTextColor="#aaa"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-        />
-        <TouchableOpacity
-          style={[styles.button, (!email || loading) && styles.buttonDisabled]}
-          onPress={handleReset}
-          disabled={!email || loading}
-        >
-          <ThemedText style={styles.buttonText}>{loading ? 'Sending...' : 'Reset password'}</ThemedText>
-        </TouchableOpacity>
-      </View>
-    </View>
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
+        <View style={styles.container}>
+          <TopAlert
+            message={alert.message}
+            type={alert.type}
+            visible={alert.visible}
+          />
+          <KeyboardAwareScrollView
+            contentContainerStyle={styles.content}
+            keyboardShouldPersistTaps="handled"
+            enableOnAndroid
+            enableAutomaticScroll
+            extraScrollHeight={40}
+            showsVerticalScrollIndicator={false}
+            style={{ flex: 1 }}
+          >
+            {/* SVG Header */}
+            <View style={{ position: 'relative' }}>
+              <Svg
+                width={width * 1.7}
+                height={width * 1.2}
+                viewBox={`0 0 ${width * 1.7} ${width * 1.2}`}
+                style={{
+                  alignSelf: 'flex-start',
+                  marginTop: 0,
+                  marginBottom: -176,
+                  marginLeft: -(width * 0.35),
+                }}
+              >
+                <Path
+                  d={`M0,0 Q${(width * 1.4) / 2},${width * 1.2} ${width * 1.7},0 L${width * 1.7},0 L0,0 Z`}
+                  fill="#4A154B"
+                />
+              </Svg>
+              <TouchableOpacity
+                onPress={() => router.back()}
+                style={{ position: 'absolute', top: 100, left: 7, zIndex: 2 }}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons name="arrow-back" size={16} color="#fff" />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.title}>Reset password</Text>
+            <Text style={styles.subtitle}>
+              Enter your email and we'll send you a link to reset your password.
+            </Text>
+
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor:
+                    alert.visible && alert.type === 'error'
+                      ? '#FDECEC'
+                      : email
+                        ? '#EDE8ED'
+                        : '#FFFFFF',
+                },
+                alert.visible && alert.type === 'error' ? styles.inputError : null,
+              ]}
+              placeholder="Email address"
+              placeholderTextColor="#aaa"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+
+            <TouchableOpacity
+              style={[
+                styles.button,
+                !email || loading ? styles.buttonDisabled : styles.buttonEnabled,
+              ]}
+              onPress={handleReset}
+              disabled={!email || loading}
+            >
+              <Text style={styles.buttonText}>
+                {loading ? 'Sending...' : 'Reset password'}
+              </Text>
+            </TouchableOpacity>
+          </KeyboardAwareScrollView>
+        </View>
+      </SafeAreaView>
+    </>
   );
 }
 
@@ -79,81 +155,52 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  topCard: {
-    position: 'absolute',
-    top: -width * 0.8,
-    left: -width * 0.25,
-    width: width * 1.5,
-    height: width * 1.5,
-    backgroundColor: '#4A154B',
-    borderRadius: width * 0.75,
-    zIndex: 0,
-  },
   content: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'flex-start',
-    alignItems: 'stretch',
-    paddingTop: width * 0.75,
     paddingHorizontal: 24,
-    zIndex: 1,
+    paddingBottom: Math.max(40, Math.round(Dimensions.get('window').height * 0.07)),
   },
   title: {
     marginBottom: 8,
-    color: Colors.light.tint,
+    color: '#000000',
+    fontSize: 24,
+    fontWeight: '700',
   },
   subtitle: {
     marginBottom: 24,
     color: '#555',
+    fontSize: 14,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: '#E5E5E5',
     borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
+    padding: 14,
     fontSize: 16,
-    backgroundColor: '#fafafa',
+    color: '#222',
   },
   inputError: {
     borderColor: '#D32F2F',
     backgroundColor: '#FFF0F0',
   },
   button: {
-    backgroundColor: Colors.light.tint,
     borderRadius: 8,
-    paddingVertical: 14,
+    paddingVertical: 16,
     alignItems: 'center',
-    marginBottom: 12,
+    marginTop: 48,
+    width: '100%',
+  },
+  buttonEnabled: {
+    backgroundColor: '#4A154B',
   },
   buttonDisabled: {
-    backgroundColor: '#E1CFE7',
+    backgroundColor: '#B4B4B4',
   },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
   },
-  error: {
-    color: '#D32F2F',
-    marginBottom: 8,
-  },
-  topAlert: {
-    position: 'absolute',
-    top: 40,
-    left: 0,
-    right: 0,
-    backgroundColor: '#E6F4EA',
-    borderColor: '#388E3C',
-    borderWidth: 1,
-    borderRadius: 8,
-    marginHorizontal: 24,
-    padding: 12,
-    zIndex: 10,
-    alignItems: 'center',
-  },
-  topAlertText: {
-    color: '#388E3C',
-    fontWeight: 'bold',
-    fontSize: 15,
-  },
-}); 
+});
+

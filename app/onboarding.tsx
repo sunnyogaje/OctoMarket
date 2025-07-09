@@ -1,29 +1,41 @@
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
-import { Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View,
+import {
+  Dimensions,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 const slides = [
   {
     id: "1",
     title: "Welcome to\nOctoMarket",
-    subtitle: "Shop smart, book fast and earn rewards\nwhile you run your daily waka",
+    subtitle:
+      "Shop smart, book fast and earn rewards\nwhile you run your daily waka",
     image: require("../assets/images/onboarding/b1.png"),
   },
   {
     id: "2",
     title: "From Market Runs\nto Service Bookings",
-    subtitle: "Order your favorite foods, book services,\nand grab deals in one app.",
+    subtitle:
+      "Order your favorite foods, book services,\nand grab deals in one app.",
     image: require("../assets/images/onboarding/b2.png"),
   },
   {
     id: "3",
     title: "Book & Reserve \nInstantly",
-    subtitle: "Reserve that table, stylist, or plug.\nNo 'abeg, hold on.' Just tap and go.",
+    subtitle:
+      "Reserve that table, stylist, or plug.\nNo 'abeg, hold on.' Just tap and go.",
     image: require("../assets/images/onboarding/b3.png"),
   },
 ];
@@ -33,6 +45,7 @@ export default function OnboardingScreen() {
     "Lato-Regular": require("../assets/fonts/Lato-Regular.ttf"),
     "Lato-Bold": require("../assets/fonts/Lato-Bold.ttf"),
   });
+
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
@@ -60,6 +73,28 @@ export default function OnboardingScreen() {
           <Text style={styles.title}>{item.title}</Text>
           <Text style={styles.subtitle}>{item.subtitle}</Text>
         </View>
+      </View>
+    </View>
+  );
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+      <FlatList
+        ref={flatListRef}
+        data={slides}
+        keyExtractor={(item) => item.id}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={(e) => {
+          const index = Math.round(e.nativeEvent.contentOffset.x / width);
+          setCurrentIndex(index);
+        }}
+        renderItem={renderItem}
+      />
+
+      {/* Fixed Progress + Skip Button */}
+      <View style={styles.bottomFixed}>
         <View style={styles.progressContainer}>
           {slides.map((_, i) => (
             <View
@@ -76,23 +111,7 @@ export default function OnboardingScreen() {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
-  );
-
-  return (
-    <FlatList
-      ref={flatListRef}
-      data={slides}
-      keyExtractor={(item) => item.id}
-      horizontal
-      pagingEnabled
-      showsHorizontalScrollIndicator={false}
-      onMomentumScrollEnd={(e) => {
-        const index = Math.round(e.nativeEvent.contentOffset.x / width);
-        setCurrentIndex(index);
-      }}
-      renderItem={renderItem}
-    />
+    </SafeAreaView>
   );
 }
 
@@ -105,20 +124,22 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: 330,
-    marginTop: 130,
+    marginTop: 95,
   },
   card: {
     width: "100%",
-    flex: 1,
+    // flex: 1,
     backgroundColor: "#fff",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    borderWidth: 1,
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderBottomWidth: 0,
     borderColor: "#E0E0E0",
     marginTop: 50,
     paddingVertical: 24,
     paddingHorizontal: 20,
-    // justifyContent: "space-between",
   },
   textWrapper: {
     alignItems: "flex-start",
@@ -142,7 +163,7 @@ const styles = StyleSheet.create({
   progressContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 58,
+    marginBottom: 10,
   },
   dot: {
     width: 35,
@@ -159,20 +180,27 @@ const styles = StyleSheet.create({
   },
   buttonWrapper: {
     alignItems: "flex-end",
-    // marginTop: 20,
+    paddingHorizontal: 20,
+    marginTop: 35,
   },
   skipButton: {
     backgroundColor: "#4A154B",
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 5,
-    marginTop: 50,
     width: 100,
+    alignSelf: "flex-end",
   },
   skipButtonText: {
     fontFamily: "Lato-Regular",
     color: "#fff",
     fontSize: 17,
     alignSelf: "center",
+  },
+  bottomFixed: {
+    position: "absolute",
+    bottom: 85,
+    width: "100%",
+    paddingHorizontal: 20,
   },
 });

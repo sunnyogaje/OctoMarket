@@ -1,21 +1,22 @@
-import React from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { Button } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import React from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LandingScreen() {
   const router = useRouter();
 
   return (
+    <SafeAreaView style={styles.safeArea}>
     <View style={styles.container}>
       {/* Top Image */}
+        <View style={styles.imageContainer}>
       <Image
-        source={require("../assets/images/landingpage/landing.png")} // Change to your desired image
+            source={require("../assets/images/landingpage/landing.png")}
         style={styles.image}
         resizeMode="contain"
       />
+        </View>
 
       {/* Card */}
       <View style={styles.card}>
@@ -28,7 +29,6 @@ export default function LandingScreen() {
           </Text>
         </View>
         
-        
         {/* Buttons */}
         <View style={styles.buttonRow}>
           <TouchableOpacity
@@ -37,7 +37,7 @@ export default function LandingScreen() {
           >
             <Text style={styles.primaryButtonText}>Get started</Text>
           </TouchableOpacity>
-
+            <View style={{ width: 16 }} />
           <TouchableOpacity
             style={styles.secondaryButton}
             onPress={() => router.replace("/login")}
@@ -47,31 +47,42 @@ export default function LandingScreen() {
         </View>
       </View>
     </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
-    paddingTop: 60,
+    paddingTop: 0,
+  },
+  imageContainer: {
+    flex: 2,
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
   },
   image: {
-    width: "100%",
-    height: 330,
-    marginTop: 100,
+    width: "90%",
+    height: "100%",
+    maxHeight: 260,
   },
   card: {
+    flex: 1,
     width: "100%",
-    height: "100%",
     backgroundColor: "#fff",
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "#E0E0E0",
-    marginTop: 40,
     paddingVertical: 24,
     paddingHorizontal: 20,
+    justifyContent: "space-between",
   },
   textWrapper: {
     alignItems: "flex-start",
@@ -94,16 +105,19 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 80,
-    paddingHorizontal: 20, // optional: adds padding to sides
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 40,
+    paddingHorizontal: 20,
   },
   primaryButton: {
-    width: 140,
+    flex: 1,
     backgroundColor: "#4A154B",
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: "center",
+    minWidth: 120,
+    maxWidth: 180,
   },
   primaryButtonText: {
     color: "#fff",
@@ -111,13 +125,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   secondaryButton: {
-    width: 140,
+    flex: 1,
     borderWidth: 1,
     borderColor: "#4A154B",
     backgroundColor: "#fff",
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: "center",
+    minWidth: 120,
+    maxWidth: 180,
   },
   secondaryButtonText: {
     color: "#4A154B",
