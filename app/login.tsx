@@ -1,10 +1,22 @@
-import { Colors } from '@/constants/Colors';
+import { TopAlert } from '@/components/TopAlert';
 import { Ionicons } from '@expo/vector-icons';
-import { Link, router } from 'expo-router';
-import { useState } from 'react';
-import { Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Link, Stack, useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import {
+  Dimensions,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Path } from 'react-native-svg';
 
-const { width } = Dimensions.get('window'); // for responsive purple card
+const { width } = Dimensions.get('window');
+ const router = useRouter();
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -14,84 +26,166 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
-  const isFormValid = email && password && validateEmail(email);
+  const validatePassword = (password: string) =>
+    password.length >= 8 && /[A-Za-z]/.test(password) && /[0-9]/.test(password);
+
+  const isFormValid =
+    !!email && !!password && validateEmail(email) && validatePassword(password);
 
   const handleLogin = () => {
-    router.replace('/(tabs)/home');
+    setError('');
+    if (!email) return setError('Email is required.');
+    if (!validateEmail(email)) return setError('Provide a valid email address.');
+    if (!password) return setError('Password is required.');
+    if (password.length < 8) return setError('Password must be at least 8 characters.');
+    if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password))
+      return setError('Password must contain at least one letter and one number.');
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setError('Email/password combo is not associated with an account.');
+    }, 2000);
   };
 
+  useEffect(() => {
+    if (isFormValid && error) {
+      const timeout = setTimeout(() => setError(''), 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [isFormValid, error]);
+
   return (
-    <View style={styles.container}>
-      {/* Main content */}
-      <View style={styles.content}>
-        <Text style={styles.title}>Welcome back Hannah</Text>
-        <Text style={styles.subtitle}>Provide your details to continue exploring</Text>
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
+        <View style={styles.container}>
+          <TopAlert message={error} type="error" visible={!!error} />
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Email Address</Text>
-          <TextInput
-            style={[styles.input, error && (!email || !validateEmail(email)) ? styles.inputError : null]}
-            placeholder="Provide valid email address"
-            placeholderTextColor="#aaa"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Password</Text>
-          <View style={styles.inputPasswordWrapper}>
-            <TextInput
-              style={[styles.input, styles.passwordInput, error && password ? styles.inputError : null]}
-              placeholder="Password"
-              placeholderTextColor="#aaa"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-            />
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.showHideBtn}>
-              <Ionicons
-                name={showPassword ? 'eye' : 'eye-off'}
-                size={22}
-                color={Colors.light.tint}
+          <KeyboardAwareScrollView
+            contentContainerStyle={styles.content}
+            keyboardShouldPersistTaps="handled"
+            enableOnAndroid
+            enableAutomaticScroll
+            extraScrollHeight={Platform.OS === 'ios' ? 40 : 80}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* SVG Background - part of layout flow */}
+            <Svg
+              width={width * 1.7}
+              height={width * 1.2}
+              viewBox={`0 0 ${width * 1.7} ${width * 1.2}`}
+              style={styles.svg}
+            >
+              <Path
+                d={`M0,0 Q${(width * 1.4) / 2},${width * 1.2} ${width * 1.7},0 L${width * 1.7},0 L0,0 Z`}
+                fill="#4A154B"
               />
+            </Svg>
+
+            {/* <TouchableOpacity
+                onPress={() => router.back()}
+                style={{ position: 'absolute', top: 100, left: 20, zIndex: 2 }}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+            <Ionicons name="arrow-back" size={19} color="#fff" />
+          </TouchableOpacity> */}
+
+            <Text style={styles.title}>{'Welcome back\nHannah'}</Text>
+            <Text style={styles.subtitle}>Provide your details to continue exploring</Text>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Email Address</Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor:
+                      error && (!email || !validateEmail(email))
+                        ? '#FDECEC'
+                        : email
+                          ? '#EDE8ED'
+                          : '#FFFFFF',
+                  },
+                  error && (!email || !validateEmail(email)) ? styles.inputError : null,
+                ]}
+                placeholder="Provide valid email address"
+                placeholderTextColor="#aaa"
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Password</Text>
+              <View style={styles.inputPasswordWrapper}>
+                <TextInput
+                  style={[
+                    styles.input,
+                    styles.passwordInput,
+                    {
+                      backgroundColor:
+                        error && password
+                          ? '#FDECEC'
+                          : password
+                            ? '#EDE8ED'
+                            : '#FFFFFF',
+                    },
+                    error && password ? styles.inputError : null,
+                  ]}
+                  placeholder="Password"
+                  placeholderTextColor="#aaa"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                  style={styles.showHideBtn}
+                >
+                  <Ionicons
+                    name={showPassword ? 'eye' : 'eye-off'}
+                    size={18}
+                    color={'#6B7280'}
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.forgotPasswordRow}>
+                <Link href="/reset-password" asChild>
+                  <TouchableOpacity>
+                    <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+                  </TouchableOpacity>
+                </Link>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={[
+                styles.button,
+                !isFormValid || loading ? styles.buttonDisabled : styles.buttonEnabled,
+              ]}
+              onPress={handleLogin}
+              disabled={!isFormValid || loading}
+            >
+              <Text style={styles.buttonText}>
+                {isFormValid && !error ? 'Log in' : 'Continue'}
+              </Text>
             </TouchableOpacity>
-          </View>
 
-          <View style={styles.forgotPasswordRow}>
-            <Link href="/reset-password" asChild>
-              <TouchableOpacity>
-                <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-              </TouchableOpacity>
-            </Link>
-          </View>
-
-          {error ? <Text style={styles.error}>{error}</Text> : null}
+            <View style={styles.switchContainer}>
+              <Text style={styles.switchText}>Don&apos;t have an account yet? </Text>
+              <Link href="/signup" asChild>
+                <TouchableOpacity>
+                  <Text style={styles.linkText}>Sign up</Text>
+                </TouchableOpacity>
+              </Link>
+            </View>
+          </KeyboardAwareScrollView>
         </View>
-
-        <TouchableOpacity
-          style={[styles.button, styles.buttonEnabled]}
-          onPress={handleLogin}
-        >
-          <Text style={styles.buttonText}>Log In</Text>
-        </TouchableOpacity>
-
-
-        <View style={styles.switchContainer}>
-          <Text style={styles.switchText}>Don&apos;t have an account yet? </Text>
-          <Link href="/signup" asChild>
-            <TouchableOpacity>
-              <Text style={styles.linkText}>Sign up</Text>
-            </TouchableOpacity>
-          </Link>
-        </View>
-      </View>
-
-      {/* Purple background card - render last so it's behind */}
-      <View style={styles.topCard} />
-    </View>
+      </SafeAreaView>
+    </>
   );
 }
 
@@ -99,47 +193,42 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-  },
-  topCard: {
-    position: 'absolute',
-    top: -width * 0.8,
-    left: -width * 0.25,
-    width: width * 1.5,
-    height: width * 1.5,
-    backgroundColor: '#4A154B',
-    borderRadius: width * 0.75,
-    zIndex: 0,
+    position: 'relative',
   },
   content: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'flex-start',
-    alignItems: 'stretch',
-    paddingTop: width * 0.75,
     paddingHorizontal: 24,
-    zIndex: 1,
+    paddingBottom: 40,
+  },
+  svg: {
+    alignSelf: 'flex-start',
+    marginTop: 0,
+    marginBottom: -179, // Push content up under the curve
+    marginLeft: -(width * 0.35),
   },
   title: {
-    marginTop: 21,
+    marginTop: 24,
     marginBottom: 8,
-    color: '#222',
-    fontSize: 22,
+    color: '#000',
+    fontSize: 24,
     fontWeight: '700',
     textAlign: 'left',
   },
   subtitle: {
-    marginBottom: 28,
-    color: '#444',
-    fontSize: 15,
+    marginBottom: 24,
+    color: '#000',
+    fontSize: 14,
     fontWeight: '400',
     textAlign: 'left',
   },
   inputGroup: {
-    marginBottom: 12,
+    marginBottom: 11,
   },
   inputLabel: {
     fontSize: 14,
-    color: '#222',
-    fontWeight: '500',
+    color: '#111827',
+    fontWeight: '400',
     marginBottom: 6,
     marginLeft: 2,
   },
@@ -149,7 +238,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 14,
     fontSize: 16,
-    backgroundColor: '#FAFAFA',
     color: '#222',
   },
   inputError: {
@@ -173,11 +261,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 4,
   },
-  showHideText: {
-    color: Colors.light.tint,
-    fontWeight: '500',
-    fontSize: 18,
-  },
   forgotPasswordRow: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
@@ -185,21 +268,19 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   forgotPasswordText: {
-    color: Colors.light.tint,
-    fontSize: 13,
+    color: '#6366F1',
+    fontSize: 12,
     fontWeight: '500',
-    textDecorationLine: 'underline',
   },
   button: {
     borderRadius: 8,
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: 10,
-    marginBottom: 18,
     width: '100%',
   },
   buttonEnabled: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: '#4A154B',
   },
   buttonDisabled: {
     backgroundColor: '#C4C4C4',
@@ -209,24 +290,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  error: {
-    color: '#D32F2F',
-    marginTop: 4,
-    fontSize: 13,
-  },
   switchContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 16,
   },
   switchText: {
     color: '#222',
     fontSize: 15,
   },
   linkText: {
-    color: Colors.light.tint,
-    fontWeight: '500',
-    fontSize: 15,
+    color: '#6366F1',
+    fontWeight: '400',
+    fontSize: 14,
   },
 });
