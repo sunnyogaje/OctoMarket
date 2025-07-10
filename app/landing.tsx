@@ -1,88 +1,92 @@
-import { useRouter } from "expo-router";
 import React from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import LandingSVG from "../assets/images/landingpage/landing.svg";
 
 export default function LandingScreen() {
   const router = useRouter();
 
-  return (
-    <SafeAreaView style={styles.safeArea}>
-    <View style={styles.container}>
-      {/* Top Image */}
-        <View style={styles.imageContainer}>
-      <Image
-            source={require("../assets/images/landingpage/landing.png")}
-        style={styles.image}
-        resizeMode="contain"
-      />
-        </View>
+  const handleClearStorage = async () => {
+    try {
+      await AsyncStorage.removeItem("hasLaunched");
+      alert("App storage cleared. Restart to see onboarding again.");
+    } catch (error) {
+      console.error("Error clearing storage:", error);
+    }
+  };
 
-      {/* Card */}
-      <View style={styles.card}>
-        {/* Texts */}
-        <View style={styles.textWrapper}>
-          <Text style={styles.title}>Earn Rewards as you{"\n"}Shop</Text>
-          <Text style={styles.subtitle}>
-            Earn Octopoints on every order and use them{"\n"}
-            for real purchases, discounts and offers
-          </Text>
-        </View>
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+      <View style={styles.container}>
+       
+        <LandingSVG width="100%" height={330} style={styles.image} />
+
         
-        {/* Buttons */}
-        <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={() => router.replace("/signup")}
-          >
-            <Text style={styles.primaryButtonText}>Get started</Text>
-          </TouchableOpacity>
-            <View style={{ width: 16 }} />
-          <TouchableOpacity
-            style={styles.secondaryButton}
-            onPress={() => router.replace("/login")}
-          >
-            <Text style={styles.secondaryButtonText}>Log in</Text>
-          </TouchableOpacity>
+          {/* Clear Storage Text */}
+          {/* <TouchableOpacity onPress={handleClearStorage}>
+            <Text style={styles.clearText}>Clear storage</Text>
+          </TouchableOpacity> */}
+
+        {/* Card */}
+        <View style={styles.card}>
+          {/* Texts */}
+          <View style={styles.textWrapper}>
+            <Text style={styles.title}>Earn Rewards as you{"\n"}Shop</Text>
+            <Text style={styles.subtitle}>
+              Earn Octopoints on every order and use them{"\n"}
+              for real purchases, discounts and offers
+            </Text>
+          </View>
+
+          {/* Buttons */}
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={() => router.replace("/signup")}
+            >
+              <Text style={styles.primaryButtonText}>Get started</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => router.replace("/login")}
+            >
+              <Text style={styles.secondaryButtonText}>Log in</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-    </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
-    paddingTop: 0,
-  },
-  imageContainer: {
-    flex: 2,
-    width: "100%",
-    justifyContent: "center",
-    alignItems: "center",
+    paddingTop: 60,
   },
   image: {
-    width: "90%",
-    height: "100%",
-    maxHeight: 260,
+    marginTop: 50,
   },
   card: {
-    flex: 1,
     width: "100%",
+    flex: 1,
     backgroundColor: "#fff",
-    borderRadius: 20,
-    borderWidth: 1,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderBottomWidth: 0,
     borderColor: "#E0E0E0",
+    marginTop: 50,
     paddingVertical: 24,
     paddingHorizontal: 20,
-    justifyContent: "space-between",
   },
   textWrapper: {
     alignItems: "flex-start",
@@ -105,19 +109,16 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 40,
+    justifyContent: "space-between",
+    marginTop: 80,
     paddingHorizontal: 20,
   },
   primaryButton: {
-    flex: 1,
+    width: 140,
     backgroundColor: "#4A154B",
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: "center",
-    minWidth: 120,
-    maxWidth: 180,
   },
   primaryButtonText: {
     color: "#fff",
@@ -125,19 +126,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   secondaryButton: {
-    flex: 1,
+    width: 140,
     borderWidth: 1,
     borderColor: "#4A154B",
     backgroundColor: "#fff",
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: "center",
-    minWidth: 120,
-    maxWidth: 180,
   },
   secondaryButtonText: {
     color: "#4A154B",
     fontWeight: "600",
     fontSize: 16,
+  },
+  clearText: {
+    color: "#4A154B",
+    textAlign: "center",
+    marginTop: 40,
+    textDecorationLine: "underline",
+    fontWeight: "800",
+    fontSize: 30,
   },
 });

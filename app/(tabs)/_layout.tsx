@@ -27,12 +27,45 @@ export default function TabLayout() {
         }),
       }}>
       <Tabs.Screen
-        name="index"
+        name="home" 
         options={{
-          title: 'Home',
+          title: "Home",
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="categories"
+        options={{
+          title: "Categories",
+          tabBarIcon: ({ color }) => <IconSymbol name="square.grid.2x2.fill" size={24} color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="cart"
+        options={{
+          title: "Cart",
+          tabBarIcon: ({ color }) => <IconSymbol name="cart.fill" size={24} color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="support"
+        options={{
+          title: "Support",
+          tabBarIcon: ({ color }) => <IconSymbol name="ellipsis.bubble.fill" size={24} color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="account"
+        options={{
+          title: "Account",
+          tabBarIcon: ({ color }) => <IconSymbol name="person.fill" size={24} color={color} />,
+        }}
+      />
+
+
       {/* Add more tabs for your market app as needed */}
     </Tabs>
   );
