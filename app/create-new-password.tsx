@@ -1,9 +1,10 @@
-import { ThemedText } from '@/components/ThemedText';
 import { TopAlert } from '@/components/TopAlert';
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Dimensions, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -50,53 +51,101 @@ export default function CreateNewPasswordScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.topCard} />
-      <TopAlert message={alert.message} type={alert.type} visible={alert.visible} />
-      <View style={styles.content}>
-        <ThemedText type="title" style={styles.title}>Create new password</ThemedText>
-        <ThemedText style={styles.subtitle}>
-          Your new password must be different from previous passwords.
-        </ThemedText>
-        <TextInput
-          style={[styles.input, error && password ? styles.inputError : null]}
-          placeholder="Password"
-          placeholderTextColor="#aaa"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry={!showPassword}
-        />
-        <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.showHideBtn}>
-          <Ionicons
-            name={showPassword ? 'eye' : 'eye-off'}
-            size={22}
-            color="#4A154B"
-          />
-        </TouchableOpacity>
-        <TextInput
-          style={[styles.input, error && confirmPassword ? styles.inputError : null]}
-          placeholder="Confirm Password"
-          placeholderTextColor="#aaa"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry={!showConfirmPassword}
-        />
-        <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={styles.showHideBtn2}>
-          <Ionicons
-            name={showConfirmPassword ? 'eye' : 'eye-off'}
-            size={22}
-            color="#4A154B"
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, (!isFormValid || loading) && styles.buttonDisabled]}
-          onPress={handleReset}
-          disabled={!isFormValid || loading}
+    <>
+    <Stack.Screen options={{ headerShown: false }} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }} edges={['bottom']}>
+      <View style={styles.container}>
+        <TopAlert message={alert.message} type={alert.type} visible={alert.visible} />
+        <KeyboardAwareScrollView
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          enableOnAndroid
+          enableAutomaticScroll
+          extraScrollHeight={40}
+          showsVerticalScrollIndicator={false}
+          style={{ flex: 1 }}
         >
-          <ThemedText style={styles.buttonText}>{loading ? 'Resetting...' : 'Reset password'}</ThemedText>
-        </TouchableOpacity>
+          {/* Back Button */}
+          <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.backButton}
+              hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
+            >
+              <Ionicons name="arrow-back" size={24} color="#222" />
+            </TouchableOpacity>
+          
+          <View style={styles.contentWrapper}>
+            <Text style={styles.title}>Create new password</Text>
+            <Text style={styles.subtitle}>
+              Your new password must be different from previous passwords.
+            </Text>
+            
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Password</Text>
+              <View style={styles.inputPasswordWrapper}>
+                <TextInput
+                  style={[
+                    styles.input,
+                    styles.passwordInput,
+                    password ? { backgroundColor: '#EDE8ED' } : { backgroundColor: '#FFFFFF' },
+                    error && password ? styles.inputError : null,
+                  ]}
+                  placeholder="Password"
+                  placeholderTextColor="#aaa"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.showHideBtn}>
+                  <Ionicons
+                    name={showPassword ? 'eye' : 'eye-off'}
+                    size={18}
+                    color="#6B7280"
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Confirm Password</Text>
+              <View style={styles.inputPasswordWrapper}>
+                <TextInput
+                  style={[
+                    styles.input,
+                    styles.passwordInput,
+                    confirmPassword ? { backgroundColor: '#EDE8ED' } : { backgroundColor: '#FFFFFF' },
+                    error && confirmPassword ? styles.inputError : null,
+                  ]}
+                  placeholder="Confirm Password"
+                  placeholderTextColor="#aaa"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry={!showConfirmPassword}
+                />
+                <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={styles.showHideBtn}>
+                  <Ionicons
+                    name={showConfirmPassword ? 'eye' : 'eye-off'}
+                    size={18}
+                    color="#6B7280"
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+            
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            
+            <TouchableOpacity
+              style={[styles.button, (!isFormValid || loading) ? styles.buttonDisabled : styles.buttonEnabled]}
+              onPress={handleReset}
+              disabled={!isFormValid || loading}
+            >
+              <Text style={styles.buttonText}>{loading ? 'Resetting...' : 'Reset password'}</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAwareScrollView>
       </View>
-    </View>
+    </SafeAreaView>
+    </>
   );
 }
 
@@ -105,81 +154,110 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  topCard: {
-    position: 'absolute',
-    top: -width * 0.8,
-    left: -width * 0.25,
-    width: width * 1.5,
-    height: width * 1.5,
-    backgroundColor: '#4A154B',
-    borderRadius: width * 0.75,
-    zIndex: 0,
-  },
   content: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'flex-start',
-    alignItems: 'stretch',
-    paddingTop: width * 0.75,
     paddingHorizontal: 24,
-    zIndex: 1,
+    paddingBottom: Math.max(40, Math.round(Dimensions.get('window').height * 0.07)),
+    marginTop: 23,
+  },
+  backButton: {
+    position: 'absolute',
+    top: Math.max(48, Math.round(Dimensions.get('window').height * 0.06)),
+    left: 23,
+    zIndex: 2,
+  },
+  contentWrapper: {
+    paddingTop: Math.max(80, Math.round(Dimensions.get('window').height * 0.12)),
   },
   title: {
     marginBottom: 8,
     color: '#222',
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '700',
+    fontFamily: 'Lato-Bold',
+    letterSpacing: 0.2,
     textAlign: 'left',
   },
   subtitle: {
-    marginBottom: 24,
+    marginBottom: 32,
     color: '#555',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '400',
+    fontFamily: 'Lato-Regular',
+    letterSpacing: 0.1,
     textAlign: 'left',
+    lineHeight: 20,
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 14,
+    color: '#111827',
+    fontWeight: '400',
+    fontFamily: 'Lato-Regular',
+    letterSpacing: 0.1,
+    marginBottom: 6,
+    marginLeft: 2,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: '#E5E5E5',
     borderRadius: 8,
     padding: 14,
     fontSize: 16,
-    backgroundColor: '#fafafa',
+    fontFamily: 'Lato-Regular',
+    letterSpacing: 0.1,
     color: '#222',
-    marginBottom: 12,
   },
   inputError: {
     borderColor: '#D32F2F',
-    backgroundColor: '#FFF0F0',
+    backgroundColor: '#FDECEC',
+  },
+  inputPasswordWrapper: {
+    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  passwordInput: {
+    flex: 1,
+    paddingRight: 40,
   },
   showHideBtn: {
     position: 'absolute',
     right: 8,
-    top: 14,
-    height: 48,
+    top: 0,
+    height: '100%',
     justifyContent: 'center',
     paddingHorizontal: 4,
   },
-  showHideBtn2: {
-    position: 'absolute',
-    right: 8,
-    top: 74,
-    height: 48,
-    justifyContent: 'center',
-    paddingHorizontal: 4,
+  errorText: {
+    color: '#D32F2F',
+    marginBottom: 16,
+    fontSize: 13,
+    fontFamily: 'Lato-Regular',
+    letterSpacing: 0.1,
+    textAlign: 'left',
   },
   button: {
-    backgroundColor: '#4A154B',
     borderRadius: 8,
-    paddingVertical: 14,
+    paddingVertical: 16,
     alignItems: 'center',
-    marginBottom: 12,
+    marginTop: 8,
+    width: '100%',
+  },
+  buttonEnabled: {
+    backgroundColor: '#4A154B',
   },
   buttonDisabled: {
-    backgroundColor: '#E1CFE7',
+    backgroundColor: '#B4B4B4',
   },
   buttonText: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: '600',
     fontSize: 16,
+    fontFamily: 'Lato-Bold',
+    letterSpacing: 0.2,
   },
 }); 
