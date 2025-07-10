@@ -1,195 +1,180 @@
-import { useRouter } from "expo-router";
-import React, { useRef, useState, useEffect } from "react";
-import {
-  Dimensions,
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { SafeAreaView } from "react-native-safe-area-context";
-import * as SplashScreen from "expo-splash-screen";
+import React, { useRef, useState } from 'react';
+import { Dimensions, FlatList, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { Video, ResizeMode } from 'expo-av';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
-import B1 from "../assets/images/onboarding/b1.svg";
-import B2 from "../assets/images/onboarding/b2.svg";
-import B3 from "../assets/images/onboarding/b3.svg";
-
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get('window');
 
 const slides = [
   {
-    id: "1",
-    title: "Welcome to\nOctoMarket",
-    subtitle:
-      "Shop smart, book fast and earn rewards\nwhile you run your daily waka",
-    image: B1,
+    id: '1',
+    title: 'Book smarter, shop faster',
+    subtitle: 'Shop smart, book fast and earn rewards\nwhile you run your daily waka',
+    video: require('../assets/videos/1.mp4'),
   },
   {
-    id: "2",
-    title: "From Market Runs\nto Service Bookings",
-    subtitle:
-      "Order your favorite foods, book services,\nand grab deals in one app.",
-    image: B2,
+    id: '2',
+    title: 'From mama put to market runs',
+    subtitle: 'Get your favorites meals, house supplies\nor even fix your items with ZERO stress',
+    video: require('../assets/videos/2.mp4'),
   },
   {
-    id: "3",
-    title: "Book & Reserve \nInstantly",
-    subtitle:
-      "Reserve that table, stylist, or plug.\nNo 'abeg, hold on.' Just tap and go.",
-    image: B3,
+    id: '3',
+    title: 'All your favs in one app',
+    subtitle: 'Book services and grab deals with\nearning at it',
+    video: require('../assets/videos/3.mp4'),
   },
 ];
 
-export default function OnboardingScreen() {
-  const router = useRouter();
+export default function Onboarding() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [videoReady, setVideoReady] = useState<boolean[]>(Array(slides.length).fill(false));
   const flatListRef = useRef<FlatList>(null);
+  const router = useRouter();
 
-  // ✅ Hide splash screen once screen mounts
-  useEffect(() => {
-    const hideSplash = async () => {
-      await SplashScreen.hideAsync();
-    };
-
-    hideSplash();
-  }, []);
-
-  const handleSkip = async () => {
-    router.replace("/landing");
+  const handleNext = () => {
+    if (currentIndex < slides.length - 1) {
+      flatListRef.current?.scrollToIndex({ index: currentIndex + 1 });
+    } else {
+      router.replace('/landing');
+    }
   };
 
-  const renderItem = ({ item }: any) => (
-    <View style={styles.page}>
-      <item.image width={"100%"} height={330} style={styles.image} />
-      <View style={styles.card}>
-        <View style={styles.textWrapper}>
-          <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.subtitle}>{item.subtitle}</Text>
-        </View>
-      </View>
-    </View>
-  );
+  const handleVideoReady = (index: number) => {
+    const updated = [...videoReady];
+    updated[index] = true;
+    setVideoReady(updated);
+  };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-      <FlatList
-        ref={flatListRef}
-        data={slides}
-        keyExtractor={(item) => item.id}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={(e) => {
-          const index = Math.round(e.nativeEvent.contentOffset.x / width);
-          setCurrentIndex(index);
-        }}
-        renderItem={renderItem}
-      />
+    <FlatList
+      data={slides}
+      horizontal
+      pagingEnabled
+      ref={flatListRef}
+      keyExtractor={(item) => item.id}
+      showsHorizontalScrollIndicator={false}
+      onMomentumScrollEnd={(e) => {
+        const index = Math.round(e.nativeEvent.contentOffset.x / width);
+        setCurrentIndex(index);
+      }}
+      renderItem={({ item, index }) => (
+        <View style={styles.slide}>
+          <Video
+            source={item.video}
+            style={styles.video}
+            resizeMode={ResizeMode.COVER}
+            isLooping
+            shouldPlay={index === currentIndex}
+            isMuted
+            onReadyForDisplay={() => handleVideoReady(index)}
+          />
 
-      <View style={styles.bottomFixed}>
-        <View style={styles.progressContainer}>
-          {slides.map((_, i) => (
-            <View
-              key={i}
-              style={[styles.dot, i === currentIndex && styles.activeDot]}
+          <LinearGradient
+            colors={['transparent', 'rgba(74,21,75,0.7)', '#4A154B']}
+            locations={[0.5, 0.8, 1]}
+            style={styles.gradient}
+          />
+
+          {!videoReady[index] && (
+            <ActivityIndicator
+              size="large"
+              color="#fff"
+              style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center' }]}
             />
-          ))}
+          )}
+
+          {videoReady[index] && (
+            <View style={styles.overlay}>
+              <View style={styles.textBox}>
+                <Text style={styles.title}>{item.title}</Text>
+                <Text style={styles.subtitle}>{item.subtitle}</Text>
+              </View>
+
+              <View style={styles.controls}>
+                <View style={styles.dots}>
+                  {slides.map((_, i) => (
+                    <View
+                      key={i}
+                      style={[styles.dot, i === currentIndex && styles.activeDot]}
+                    />
+                  ))}
+                </View>
+
+                <TouchableOpacity onPress={handleNext} style={styles.nextButton}>
+                  <Ionicons name="arrow-forward" size={24} color="#4A154B" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
         </View>
-        <View style={styles.buttonWrapper}>
-          <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-            <Text style={styles.skipButtonText}>Skip</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </SafeAreaView>
+      )}
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  page: {
+  slide: {
     width,
-    alignItems: "center",
-    backgroundColor: "#fff",
+    height,
+    backgroundColor: 'black',
   },
-  image: {
-    marginTop: 95,
+  video: {
+    position: 'absolute',
+    width,
+    height,
   },
-  card: {
-    width: "100%",
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    borderTopWidth: 1,
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderBottomWidth: 0,
-    borderColor: "#E0E0E0",
-    marginTop: 50,
-    paddingVertical: 24,
-    paddingHorizontal: 20,
+  gradient: {
+    position: 'absolute',
+    bottom: 0,
+    height: 1000,
+    width: '100%',
   },
-  textWrapper: {
-    alignItems: "flex-start",
+  overlay: {
+    position: 'absolute',
+    bottom: 50,
+    left: 24,
+    right: 24,
+  },
+  textBox: {
+    marginBottom: 70,
   },
   title: {
+    color: '#fff',
     fontSize: 26,
-    lineHeight: 34,
-    color: "#1A1A1A",
-    textAlign: "left",
-    marginTop: 10,
-    fontWeight: "700",
-  },
-  subtitle: {
-    fontSize: 16,
-    lineHeight: 20,
-    color: "#4A4A4A",
-    textAlign: "left",
-    marginTop: 15,
-    fontWeight: "400",
-  },
-  progressContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    fontWeight: '600',
     marginBottom: 10,
   },
+  subtitle: {
+    color: '#fff',
+    fontSize: 16,
+    lineHeight: 22,
+    marginTop: 10,
+  },
+  controls: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  dots: {
+    flexDirection: 'row',
+  },
   dot: {
-    width: 35,
-    height: 7,
-    borderRadius: 3.5,
-    backgroundColor: "#E0E0E0",
-    marginHorizontal: 4,
+    width: 8,
+    height: 8,
+    backgroundColor: '#ccc',
+    borderRadius: 4,
+    marginRight: 6,
   },
   activeDot: {
-    backgroundColor: "#4A154B",
-    width: 45,
-    height: 10,
-    borderRadius: 5,
+    backgroundColor: '#fff',
+    width: 16,
   },
-  buttonWrapper: {
-    alignItems: "flex-end",
-    paddingHorizontal: 20,
-    marginTop: 35,
-  },
-  skipButton: {
-    backgroundColor: "#4A154B",
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 5,
-    width: 100,
-    alignSelf: "flex-end",
-  },
-  skipButtonText: {
-    color: "#fff",
-    fontSize: 17,
-    alignSelf: "center",
-  },
-  bottomFixed: {
-    position: "absolute",
-    bottom: 85,
-    width: "100%",
-    paddingHorizontal: 20,
+  nextButton: {
+    backgroundColor: '#fff',
+    padding: 14,
+    borderRadius: 30,
   },
 });

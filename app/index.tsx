@@ -22,7 +22,7 @@ export default function Index() {
           router.replace("/onboarding");
         } else {
           const userToken = await AsyncStorage.getItem("userToken");
-          router.replace(userToken ? "/(tabs)/dashboard" : "/landing");
+          router.replace(userToken ? "/(tabs)/home" : "/landing");
         }
       } catch (error) {
         console.warn("App start error:", error);

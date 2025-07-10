@@ -1,6 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { useState } from 'react';
 import { Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
@@ -17,20 +17,7 @@ export default function LoginScreen() {
   const isFormValid = email && password && validateEmail(email);
 
   const handleLogin = () => {
-    setError('');
-    if (!email || !password) {
-      setError('Please fill in all fields.');
-      return;
-    }
-    if (!validateEmail(email)) {
-      setError('Provide a valid email address.');
-      return;
-    }
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setError('Email/password combo is not associated with an account.');
-    }, 1200);
+    router.replace('/(tabs)/home');
   };
 
   return (
@@ -85,12 +72,12 @@ export default function LoginScreen() {
         </View>
 
         <TouchableOpacity
-          style={[styles.button, (!isFormValid || loading || error) ? styles.buttonDisabled : styles.buttonEnabled]}
+          style={[styles.button, styles.buttonEnabled]}
           onPress={handleLogin}
-          disabled={!isFormValid || loading || !!error}
         >
-          <Text style={styles.buttonText}>{isFormValid && !error ? 'Log in' : 'Continue'}</Text>
+          <Text style={styles.buttonText}>Log In</Text>
         </TouchableOpacity>
+
 
         <View style={styles.switchContainer}>
           <Text style={styles.switchText}>Don&apos;t have an account yet? </Text>

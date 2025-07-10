@@ -26,9 +26,9 @@ export default function LandingScreen() {
 
         
           {/* Clear Storage Text */}
-          <TouchableOpacity onPress={handleClearStorage}>
+          {/* <TouchableOpacity onPress={handleClearStorage}>
             <Text style={styles.clearText}>Clear storage</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
         {/* Card */}
         <View style={styles.card}>
