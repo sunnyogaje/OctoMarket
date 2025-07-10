@@ -145,6 +145,6 @@ const styles = StyleSheet.create({
     marginTop: 40,
     textDecorationLine: "underline",
     fontWeight: "800",
-    fontSize: 30,
+    fontSize: 12,
   },
 });
