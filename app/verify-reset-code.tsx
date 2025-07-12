@@ -90,7 +90,7 @@ export default function VerifyResetCodeScreen() {
             <View style={styles.contentWrapper}>
               {/* Back Arrow at the top */}
               <TouchableOpacity
-                onPress={() => router.back()}
+                onPress={() => router.push('/reset-password')}
                 style={styles.backButton}
                 hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
               >
@@ -103,7 +103,7 @@ export default function VerifyResetCodeScreen() {
               <Text style={styles.subtitle}>
                 We sent a 4-digit code to your email address{`\n`}
                 <Text style={styles.emailText}>{email || 'hannah@gmail.com'}.</Text>
-                <Text style={styles.changeEmail} onPress={() => router.push('/login')}> Change email?</Text>
+                <Text style={styles.changeEmail} onPress={() => router.push('/reset-password')}> Change email?</Text>
               </Text>
               <View style={styles.codeRow}>
                 {code.map((digit, idx) => (

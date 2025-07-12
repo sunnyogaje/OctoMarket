@@ -28,26 +28,33 @@ export default function CreateNewPasswordScreen() {
   };
 
   const handleReset = () => {
-    setError('');
-    setSuccess(false);
-    if (!password || !confirmPassword) {
-      showAlert('Please fill in all fields.', 'error');
-      return;
-    }
-    if (password.length < 6) {
-      showAlert('Password must be at least 6 characters.', 'error');
-      return;
-    }
-    if (password !== confirmPassword) {
-      showAlert('Passwords do not match.', 'error');
-      return;
-    }
+    // setError('');
+    // setSuccess(false);
+    // if (!password || !confirmPassword) {
+    //   showAlert('Please fill in all fields.', 'error');
+    //   return;
+    // }
+    // if (password.length < 6) {
+    //   showAlert('Password must be at least 6 characters.', 'error');
+    //   return;
+    // }
+    // if (password !== confirmPassword) {
+    //   showAlert('Passwords do not match.', 'error');
+    //   return;
+    // }
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
       showAlert('Password reset successful!', 'success');
       setSuccess(true);
+
+      // Wait for the alert to display before redirecting
+      setTimeout(() => {
+        router.push('/login');
+      }, 1500); // delay navigation by 1.5 seconds
     }, 1200);
+
+    
   };
 
   return (
@@ -67,7 +74,7 @@ export default function CreateNewPasswordScreen() {
         >
           {/* Back Button */}
           <TouchableOpacity
-              onPress={() => router.back()}
+              onPress={() =>  router.push('/verify-reset-code')}
               style={styles.backButton}
               hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
             >
@@ -135,11 +142,10 @@ export default function CreateNewPasswordScreen() {
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
             
             <TouchableOpacity
-              style={[styles.button, (!isFormValid || loading) ? styles.buttonDisabled : styles.buttonEnabled]}
+              style={[styles.button, styles.buttonEnabled]}
               onPress={handleReset}
-              disabled={!isFormValid || loading}
             >
-              <Text style={styles.buttonText}>{loading ? 'Resetting...' : 'Reset password'}</Text>
+              <Text style={styles.buttonText}>Reset password</Text>
             </TouchableOpacity>
           </View>
         </KeyboardAwareScrollView>

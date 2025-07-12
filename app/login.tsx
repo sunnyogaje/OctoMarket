@@ -26,25 +26,31 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
-  const validatePassword = (password: string) =>
-    password.length >= 8 && /[A-Za-z]/.test(password) && /[0-9]/.test(password);
+  const validatePassword = (password: string): boolean =>
+    !!password && password.trim().length > 0;
+  // const validatePassword = (password: string) =>
+
+  //   !password ;
+    // password.length >= 8 && /[A-Za-z]/.test(password) && /[0-9]/.test(password);
 
   const isFormValid =
     !!email && !!password && validateEmail(email) && validatePassword(password);
 
   const handleLogin = () => {
-    setError('');
-    if (!email) return setError('Email is required.');
-    if (!validateEmail(email)) return setError('Provide a valid email address.');
-    if (!password) return setError('Password is required.');
-    if (password.length < 8) return setError('Password must be at least 8 characters.');
-    if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password))
-      return setError('Password must contain at least one letter and one number.');
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setError('Email/password combo is not associated with an account.');
-    }, 2000);
+    // setError('');
+    // if (!email) return setError('Email is required.');
+    // if (!validateEmail(email)) return setError('Provide a valid email address.');
+    // if (!password) return setError('Password is required.');
+    // if (password.length < 8) return setError('Password must be at least 8 characters.');
+    // // if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password))
+    // //   return setError('Password must contain at least one letter and one number.');
+    // setLoading(true);
+    // setTimeout(() => {
+    //   setLoading(false);
+    //    router.push({ pathname: './tabs/home'});
+    //   // setError('Email/password combo is not associated with an account.');
+    // }, 2000);
+    router.push('/(tabs)/home');
   };
 
   useEffect(() => {

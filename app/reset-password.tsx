@@ -97,7 +97,7 @@ export default function ResetPasswordScreen() {
                 />
               </Svg>
               <TouchableOpacity
-                onPress={() => router.back()}
+                onPress={() =>  router.push('/login')}
                 style={{ position: 'absolute', top: 100, left: 7, zIndex: 2 }}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
