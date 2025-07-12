@@ -17,7 +17,7 @@
       "package": "com.dktsolutions.octomarket",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#6C2876"
+        "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
     },
@@ -34,10 +34,11 @@
           "image": "./assets/images/logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#6C2876"
+          "backgroundColor": "#ffffff"
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true
@@ -49,7 +50,6 @@
       }
     },
     "owner": "octopoint",
-    "privacy": "public",
     "runtimeVersion": "1.0.0",
     "updates": {
       "url": "https://u.expo.dev/bd925896-01de-41ee-ab36-8a3c423e35c5"
