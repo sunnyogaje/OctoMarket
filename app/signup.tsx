@@ -43,7 +43,8 @@ export default function SignUpScreen() {
 
   const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
   // Button is only disabled if required fields are empty
-  const isButtonDisabled = !FirstName || !LastName  || !email || !password || !confirmPassword || !birthday;
+  // const isButtonDisabled = !FirstName || !LastName  || !email || !password || !confirmPassword || !birthday;
+  const isButtonDisabled = false;
 
   const showAlert = (message: string, type: 'success' | 'error' = 'success') => {
     setAlert({ message, type, visible: true });
@@ -51,26 +52,27 @@ export default function SignUpScreen() {
   };
 
   const handleSignUp = () => {
-    setSubmitAttempted(true);
-    setError('');
-    if (!FirstName) return setError('First name is required.');
-      if (!LastName) return setError('Last name is required.');
-    if (!email) return setError('Email is required.');
-    if (!validateEmail(email)) return setError('Provide a valid email address.');
-    if (!password) return setError('Password is required.');
-    if (password.length < 8) return setError('Password must be at least 8 characters.');
-    if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) return setError('Password must contain at least one letter and one number.');
-    if (!confirmPassword) return setError('Please confirm your password.');
-    if (password !== confirmPassword) return setError('Passwords do not match.');
-    if (!birthday) return setError('Birthday is required.');
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      showAlert('Sign up successful! Please verify your email.', 'success');
-      setTimeout(() => {
-        router.push({ pathname: '/verify-code', params: { email } });
-      }, 1200);
-    }, 1200);
+    // setSubmitAttempted(true);
+    // setError('');
+    // if (!FirstName) return setError('First name is required.');
+    //   if (!LastName) return setError('Last name is required.');
+    // if (!email) return setError('Email is required.');
+    // if (!validateEmail(email)) return setError('Provide a valid email address.');
+    // if (!password) return setError('Password is required.');
+    // if (password.length < 8) return setError('Password must be at least 8 characters.');
+    // if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) return setError('Password must contain at least one letter and one number.');
+    // if (!confirmPassword) return setError('Please confirm your password.');
+    // if (password !== confirmPassword) return setError('Passwords do not match.');
+    // if (!birthday) return setError('Birthday is required.');
+    // setLoading(true);
+    // setTimeout(() => {
+    //   setLoading(false);
+    //   showAlert('Sign up successful! Please verify your email.', 'success');
+    //   setTimeout(() => {
+    //     router.push({ pathname: '/verify-code', params: { email } });
+    //   }, 1200);
+    // }, 1200);
+    router.push('/verify-code');
   };
 
   const onChangeDate = (event: any, selectedDate?: Date) => {
@@ -126,7 +128,7 @@ export default function SignUpScreen() {
         </Svg>
 
          <TouchableOpacity
-                onPress={() => router.back()}
+                onPress={() => router.push('/login')}
                 style={{ position: 'absolute', top: 100, left: 20, zIndex: 2 }}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >

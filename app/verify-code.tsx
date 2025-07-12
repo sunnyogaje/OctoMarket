@@ -46,17 +46,18 @@ export default function VerifyCodeScreen() {
   };
 
   const handleVerify = () => {
-    setError('');
-    setSuccess(false);
-    if (code.join('') !== '1234') {
-      setError('Invalid code.');
-      return;
-    }
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess(true);
-    }, 1200);
+    // setError('');
+    // setSuccess(false);
+    // if (code.join('') !== '1234') {
+    //   setError('Invalid code.');
+    //   return;
+    // }
+    // setLoading(true);
+    // setTimeout(() => {
+    //   setLoading(false);
+    //   setSuccess(true);
+    // }, 1200);
+    router.push('/(tabs)/home');
   };
 
   const handleResend = () => {
@@ -83,7 +84,7 @@ export default function VerifyCodeScreen() {
             <View style={styles.contentWrapper}>
               {/* Back Arrow at the top */}
               <TouchableOpacity
-                onPress={() => router.back()}
+                onPress={() => router.push('/signup')}
                 style={styles.backButton}
                 hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
               >
@@ -96,7 +97,7 @@ export default function VerifyCodeScreen() {
               <Text style={styles.subtitle}>
                 We sent a 4-digit code to your email address{`\n`}
                 <Text style={styles.emailText}>{email || 'hannah@gmail.com'}.</Text>
-                <Text style={styles.changeEmail} onPress={() => router.push('/login')}> Change email?</Text>
+                <Text style={styles.changeEmail} onPress={() => router.push('/signup')}> Change email?</Text>
               </Text>
               <View style={styles.codeRow}>
                 {code.map((digit, idx) => (
