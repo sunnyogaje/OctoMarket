@@ -126,7 +126,7 @@ export default function SignUpScreen() {
         </Svg>
 
          <TouchableOpacity
-                onPress={() => router.back()}
+                onPress={() => router.push('/login')}
                 style={{ position: 'absolute', top: 100, left: 20, zIndex: 2 }}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
