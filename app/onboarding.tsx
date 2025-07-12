@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   slide: {
     width,
     height,
-    backgroundColor: 'black',
+    backgroundColor: 'white',
   },
   video: {
     position: 'absolute',
